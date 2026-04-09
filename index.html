@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.I.N.R.E.D. | Sistema de Emergencias Santander</title>
+    
+    <!-- Chosen Palette: Inspirada en Cruz Roja (Rojo #D90429, Blanco #FFFFFF, Gris Carbón #2B2D42) -->
+    <!-- Application Structure Plan: 
+         Diseño profesional basado en tarjetas dinámicas. 
+         Estructura de "Single Page Application" (SPA) con transiciones suaves. 
+         Secciones: Dashboard Operativo, Archivo Histórico, Mapa de Crisis y Red Ciudadana.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --primary-red: #D90429;
+            --dark-slate: #2B2D42;
+            --light-bg: #F8F9FA;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-slate);
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Estilo Dinámico de Botones (Referencia Cruz Roja) */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0; width: 0; height: 3px;
+            background-color: var(--primary-red);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 250px;
+        }
+
+        /* Mapa Táctico de Santander */
+        .grid-map {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            background-color: #dee2e6;
+            aspect-ratio: 16/9;
+            border: 4px solid var(--dark-slate);
+        }
+
+        .map-cell {
+            background-color: #fff;
+            border: 1px solid #f1f3f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: crosshair;
+        }
+        .map-cell:hover { background-color: #fff5f5; }
+
+        .node-alert {
+            width: 15px; height: 15px;
+            background-color: var(--primary-red);
+            border-radius: 50%;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 4, 41, 0.7); }
+            70% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(217, 4, 41, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 4, 41, 0); }
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 10px; }
+
+        .emergency-header {
+            background: linear-gradient(90deg, #D90429 0%, #B80322 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Bar (Información de Contacto In-Universe) -->
+    <div class="bg-white border-b py-2 px-6 flex justify-between items-center text-[11px] font-bold uppercase mono text-gray-500">
+        <div class="flex gap-4">
+            <span>Red: Encriptada</span>
+            <span>Ubicación: Nodo Santander-01</span>
+        </div>
+        <div class="flex gap-4 text-red-600">
+            <span>📞 Línea de Emergencia: (942) COLAPSO</span>
+            <span id="live-clock">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-4 mb-4 md:mb-0">
+                <div class="bg-red-600 p-2 rounded">
+                    <div class="w-8 h-8 border-4 border-white flex items-center justify-center font-bold text-white">S</div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tighter text-slate-800">SANTANDER COLAPSA</h1>
+                    <p class="text-[10px] mono text-red-600 font-bold">PORTAL OFICIAL DE CRISIS CIUDADANA</p>
+                </div>
+            </div>
+            
+            <nav class="flex gap-6 text-sm font-bold uppercase tracking-wide">
+                <button onclick="navigate('dashboard')" class="nav-link active py-2 text-slate-600 hover:text-red-600" id="btn-dashboard">Panel Central</button>
+                <button onclick="navigate('archivo')" class="nav-link py-2 text-slate-600 hover:text-red-600" id="btn-archivo">El Archivo</button>
+                <button onclick="navigate('mapa')" class="nav-link py-2 text-slate-600 hover:text-red-600" id="btn-mapa">Mapa Táctico</button>
+                <button onclick="navigate('red')" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-slate-800 transition-all" id="btn-red">Reportar Incidente</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-6">
+
+        <!-- SECTION: DASHBOARD -->
+        <section id="dashboard" class="animate-fadeIn">
+            <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 uppercase">Estado de Alerta Actual</h2>
+                    <p class="text-slate-500 font-medium">Información verificada por el Comité de Supervivencia de Santander.</p>
+                </div>
+                <div class="bg-red-600 text-white px-6 py-3 rounded-lg flex items-center gap-4 shadow-xl">
+                    <span class="animate-ping w-3 h-3 bg-white rounded-full"></span>
+                    <span class="font-black text-xl italic uppercase">Fase 4: Emergencia Crítica</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Live Ticker -->
+                <div class="lg:col-span-1 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="emergency-header p-4 text-white font-bold flex justify-between">
+                        <span>Últimos Reportes</span>
+                        <span class="mono text-xs">LIVE</span>
+                    </div>
+                    <div class="p-4 space-y-4 max-h-[400px] overflow-y-auto" id="ticker-feed">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-700 uppercase mb-4 flex items-center gap-2">
+                            🔋 Capacidad Red Eléctrica
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="energyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-700 uppercase mb-4 flex items-center gap-2">
+                            👤 Censos de Supervivientes
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="survivalChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ARCHIVO (LORE) -->
+        <section id="archivo" class="hidden animate-fadeIn">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-black text-slate-900">EL ARCHIVO CENTRAL</h2>
+                    <p class="text-slate-500">Documentación oficial sobre el origen y desarrollo del Colapso.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-2xl border-l-8 border-red-600 shadow-lg hover:shadow-xl transition-all cursor-pointer">
+                        <span class="mono text-red-600 font-bold text-xs">CATÁLOGO 01</span>
+                        <h3 class="text-2xl font-bold mt-2">Cronología del Desastre</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            Desde el primer apagón en el Puerto Chico hasta la instauración de la Ley Seca Digital. Repase los hitos que cambiaron la ciudad para siempre.
+                        </p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl border-l-8 border-slate-800 shadow-lg hover:shadow-xl transition-all cursor-pointer">
+                        <span class="mono text-slate-500 font-bold text-xs">CATÁLOGO 02</span>
+                        <h3 class="text-2xl font-bold mt-2">Protocolos de Vida</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            Instrucciones verificadas: Cómo purificar agua salobre, señales de radio permitidas y qué hacer en caso de avistamiento de "Sombras".
+                        </p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl border-l-8 border-slate-800 shadow-lg hover:shadow-xl transition-all cursor-pointer">
+                        <span class="mono text-slate-500 font-bold text-xs">CATÁLOGO 03</span>
+                        <h3 class="text-2xl font-bold mt-2">Personajes Clave</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            Perfiles de los líderes del consejo de emergencia y los misteriosos operadores de 'Radio Niebla'.
+                        </p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl border-l-8 border-slate-800 shadow-lg hover:shadow-xl transition-all cursor-pointer">
+                        <span class="mono text-slate-500 font-bold text-xs">CATÁLOGO 04</span>
+                        <h3 class="text-2xl font-bold mt-2">Ubicaciones Comprometidas</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            Zonas rojas inaccesibles por saturación de CO2 o fenómenos climáticos extremos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: MAPA TÁCTICO -->
+        <section id="mapa" class="hidden animate-fadeIn">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex-1">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-black text-slate-900">CARTOGRAFÍA DE CRISIS</h2>
+                        <p class="text-slate-500">Seleccione un cuadrante para ver el estado físico de la ruta.</p>
+                    </div>
+                    <div class="grid-map" id="map-grid">
+                        <!-- JS Injected Cells -->
+                    </div>
+                </div>
+                
+                <div class="w-full lg:w-96 bg-white rounded-xl border-2 border-slate-800 p-6 shadow-2xl">
+                    <div id="map-info-empty" class="text-center py-12">
+                        <p class="mono text-sm text-slate-400">Seleccione un marcador en el mapa para extraer evidencia física (QR Link)</p>
+                    </div>
+                    <div id="map-info-content" class="hidden space-y-6">
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                            <h4 id="loc-name" class="text-xl font-black text-red-600 uppercase">Ubicación</h4>
+                            <p id="loc-status" class="text-xs font-bold mono text-slate-500">ESTADO: DESCONOCIDO</p>
+                        </div>
+                        <div class="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 overflow-hidden">
+                            <div id="loc-image-placeholder" class="text-center p-4">
+                                [Imagen del Antes y Después]
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <h5 class="font-bold text-xs uppercase text-slate-400">Audio Recuperado</h5>
+                            <div class="bg-slate-800 p-3 rounded-lg flex items-center gap-3">
+                                <button class="text-white">▶</button>
+                                <div class="h-1 bg-slate-600 flex-1 rounded-full relative">
+                                    <div class="h-full bg-red-500 w-1/3 rounded-full"></div>
+                                </div>
+                                <span class="text-[10px] text-slate-400 mono">0:42</span>
+                            </div>
+                        </div>
+                        <p id="loc-desc" class="text-sm text-slate-600 italic">
+                            "Aquí fue donde se escuchó el primer estruendo..."
+                        </p>
+                        <button class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition-all">
+                            VER PRUEBAS COMPLETAS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: RED CÍVICA -->
+        <section id="red" class="hidden animate-fadeIn">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Form -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                    <h2 class="text-3xl font-black text-slate-900 mb-2">LÍNEA DE REPORTE</h2>
+                    <p class="text-slate-500 mb-8 font-medium">Ayude a reconstruir la historia. Suba su evidencia ciudadana (No-Canon).</p>
+                    
+                    <form class="space-y-6" onsubmit="event.preventDefault(); submitEvidence();">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-black uppercase text-slate-400 mb-2">Alias del Informante</label>
+                                <input type="text" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-red-600 outline-none" placeholder="Superviviente_84">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black uppercase text-slate-400 mb-2">Categoría</label>
+                                <select class="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none">
+                                    <option>Foto de Avistamiento</option>
+                                    <option>Relato Escrito</option>
+                                    <option>Kit de Supervivencia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black uppercase text-slate-400 mb-2">Evidencia Detallada</label>
+                            <textarea class="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg h-32 outline-none" placeholder="Describa lo que ha visto u oído..."></textarea>
+                        </div>
+                        <div class="border-2 border-dashed border-slate-200 p-6 text-center rounded-xl hover:bg-red-50 transition-colors cursor-pointer">
+                            <span class="text-slate-400 font-bold text-sm">Arrastre sus fotos o archivos aquí</span>
+                        </div>
+                        <button class="w-full bg-red-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-slate-900 transition-all uppercase tracking-widest">
+                            Transmitir Reporte
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Gallery -->
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-6 uppercase">Muro de Evidencias</h2>
+                    <div class="grid grid-cols-2 gap-4" id="evidence-gallery">
+                        <!-- Evidence Cards -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white p-12 mt-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+                <h4 class="font-black text-xl mb-4">SANTANDER COLAPSA</h4>
+                <p class="text-slate-400 text-sm">Proyecto Transmedia Inmersivo. Este sitio es una simulación de ficción alternativa. No representa una emergencia real.</p>
+            </div>
+            <div>
+                <h4 class="font-black text-sm uppercase mb-4 text-red-500">Sitemap In-Universe</h4>
+                <ul class="text-slate-400 text-sm space-y-2">
+                    <li><a href="#" class="hover:text-white">Directorio de Refugios</a></li>
+                    <li><a href="#" class="hover:text-white">Mapa de la Niebla</a></li>
+                    <li><a href="#" class="hover:text-white">Lista de Desaparecidos</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-black text-sm uppercase mb-4 text-red-500">Frecuencias</h4>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-slate-800 flex items-center justify-center rounded hover:bg-red-600 transition-all cursor-pointer">𝕏</div>
+                    <div class="w-10 h-10 bg-slate-800 flex items-center justify-center rounded hover:bg-red-600 transition-all cursor-pointer">IG</div>
+                    <div class="w-10 h-10 bg-slate-800 flex items-center justify-center rounded hover:bg-red-600 transition-all cursor-pointer">YT</div>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-slate-800 mt-12 pt-8 text-center text-xs text-slate-500 mono">
+            © 2026 COMITÉ DE RESISTENCIA SANTANDER - TODOS LOS DERECHOS RESERVADOS
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA & STATE ---
+        const feedData = [
+            { time: "09:42", msg: "Apagón masivo reportado en el Distrito 3.", type: "urgent" },
+            { time: "10:15", msg: "Nivel de CO2 estable en el centro.", type: "info" },
+            { time: "11:04", msg: "Suministro de agua suspendido en General Dávila.", type: "urgent" },
+            { time: "11:30", msg: "Avistamiento de luces extrañas en el mar.", type: "warn" }
+        ];
+
+        const mapData = {
+            "2-3": { name: "Puerto Chico", status: "ZONA ROJA", desc: "La niebla entró por aquí. El agua está negra.", img: "puerto_chico" },
+            "4-5": { name: "Catedral", status: "PUNTO SEGURO", desc: "Refugio improvisado en la cripta.", img: "catedral" },
+            "3-7": { name: "El Sardinero", status: "EVACUADO", desc: "Las playas han desaparecido bajo la espuma salina.", img: "playa" }
+        };
+
+        const communityPosts = [
+            { user: "User_91", msg: "Encontré esta radio en el ático de mi abuela.", type: "Kit" },
+            { user: "Sander77", msg: "La niebla huele a metal quemado.", type: "Relato" },
+            { user: "Marta_Col", msg: "Foto de mi mochila de emergencia lista.", type: "Kit" }
+        ];
+
+        // --- NAVIGATION ---
+        function navigate(sectionId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'text-red-600'));
+            const activeBtn = document.getElementById('btn-' + sectionId);
+            if(activeBtn) activeBtn.classList.add('active', 'text-red-600');
+            
+            if(sectionId === 'dashboard') initCharts();
+            if(sectionId === 'mapa') buildMap();
+            if(sectionId === 'red') buildGallery();
+        }
+
+        // --- CHARTS ---
+        function initCharts() {
+            const chartConfig = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { display: false }, x: { display: true, ticks: { color: '#94a3b8' } } }
+            };
+
+            new Chart(document.getElementById('energyChart'), {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00'],
+                    datasets: [{
+                        data: [90, 65, 30, 25, 10],
+                        borderColor: '#D90429',
+                        fill: true,
+                        backgroundColor: 'rgba(217, 4, 41, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: chartConfig
+            });
+
+            new Chart(document.getElementById('survivalChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Centro', 'Cueto', 'Alisal', 'Sardinero'],
+                    datasets: [{
+                        data: [4200, 2100, 5800, 400],
+                        backgroundColor: '#2B2D42'
+                    }]
+                },
+                options: chartConfig
+            });
+        }
+
+        // --- MAP BUILDER ---
+        function buildMap() {
+            const grid = document.getElementById('map-grid');
+            grid.innerHTML = '';
+            for(let r=0; r<6; r++) {
+                for(let c=0; c<8; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'map-cell';
+                    const key = `${r}-${c}`;
+                    if(mapData[key]) {
+                        const node = document.createElement('div');
+                        node.className = 'node-alert';
+                        cell.appendChild(node);
+                        cell.onclick = () => showLocation(key);
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function showLocation(key) {
+            const data = mapData[key];
+            document.getElementById('map-info-empty').classList.add('hidden');
+            document.getElementById('map-info-content').classList.remove('hidden');
+            document.getElementById('loc-name').textContent = data.name;
+            document.getElementById('loc-status').textContent = `ESTADO: ${data.status}`;
+            document.getElementById('loc-desc').textContent = data.desc;
+        }
+
+        // --- TICKER & GALLERY ---
+        function updateTicker() {
+            const ticker = document.getElementById('ticker-feed');
+            ticker.innerHTML = feedData.map(f => `
+                <div class="border-b border-slate-100 pb-3 last:border-0">
+                    <span class="mono text-[10px] font-bold text-red-600">${f.time}</span>
+                    <p class="text-sm font-medium text-slate-700">${f.msg}</p>
+                </div>
+            `).join('');
+        }
+
+        function buildGallery() {
+            const gallery = document.getElementById('evidence-gallery');
+            gallery.innerHTML = communityPosts.map(p => `
+                <div class="bg-slate-100 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase text-red-600">${p.type}</span>
+                        <span class="mono text-[10px] text-slate-400">@${p.user}</span>
+                    </div>
+                    <p class="text-sm text-slate-600">"${p.msg}"</p>
+                </div>
+            `).join('');
+        }
+
+        function submitEvidence() {
+            const msg = "Reporte enviado con éxito al Servidor Central. La resistencia agradece su valor.";
+            alert(msg); // En entorno real usaría un modal personalizado
+        }
+
+        // --- INIT ---
+        window.onload = () => {
+            updateTicker();
+            initCharts();
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').textContent = now.toLocaleTimeString();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
