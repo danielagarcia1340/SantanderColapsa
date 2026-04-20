@@ -47,12 +47,12 @@
             height: 450px;
         }
 
-        /* Mapa Táctico con Imagen de Fondo Local */
+        /* Mapa Interactivo */
         #map-container {
             position: relative;
             width: 100%;
             aspect-ratio: 16/9;
-            background-image: url('file:///mapasantander.jpg');
+            background-image: url('file:///C:/Users/34664/Documents/PUBLI%20Y%20PERIODISMO/TERCERO/COMUNICACIÓN%20NEW%20MEDIA/SANTANDER%20COLAPSA/assets/mapasantander.jpg');
             background-size: cover;
             background-position: center;
             border: 4px solid var(--dark-slate);
@@ -88,8 +88,21 @@
             100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(217, 4, 41, 0); }
         }
 
-        .emergency-header {
-            background: linear-gradient(90deg, #D90429 0%, #B80322 100%);
+        /* Estilo capturas para las tarjetas del Archivo */
+        .archive-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-left: 8px solid var(--dark-slate);
+            transition: all 0.3s ease;
+        }
+        .archive-card.highlight {
+            border-left-color: var(--primary-red);
+        }
+        .archive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -123,7 +136,7 @@
             <nav class="flex gap-6 text-sm font-bold uppercase tracking-wide">
                 <button onclick="navigate('dashboard')" class="nav-link active py-2 text-slate-600 hover:text-red-600" id="btn-dashboard">Panel Central</button>
                 <button onclick="navigate('archivo')" class="nav-link py-2 text-slate-600 hover:text-red-600" id="btn-archivo">El Archivo</button>
-                <button onclick="navigate('mapa')" class="nav-link py-2 text-slate-600 hover:text-red-600" id="btn-mapa">Mapa Táctico</button>
+                <button onclick="navigate('mapa')" class="nav-link py-2 text-slate-600 hover:text-red-600" id="btn-mapa">Mapa Interactivo</button>
                 <button onclick="navigate('red')" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-slate-800 transition-all" id="btn-red">Reportar Incidente</button>
             </nav>
         </div>
@@ -132,7 +145,7 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-7xl mx-auto w-full p-6">
 
-        <!-- SECTION: DASHBOARD (Panel Central Ampliado) -->
+        <!-- SECTION: DASHBOARD -->
         <section id="dashboard" class="animate-fadeIn">
             <div class="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
                 <div>
@@ -146,7 +159,6 @@
             </div>
 
             <div class="grid grid-cols-1 gap-12">
-                <!-- Gráfico Energía -->
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-md">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-black text-2xl text-slate-800 uppercase flex items-center gap-3">
@@ -157,10 +169,7 @@
                     <div class="chart-container-large">
                         <canvas id="energyChart"></canvas>
                     </div>
-                    <p class="mt-4 text-sm text-slate-500 italic">Nota: Los picos de caída corresponden a las oleadas de niebla salina en la costa.</p>
                 </div>
-
-                <!-- Gráfico Supervivientes -->
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-md">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-black text-2xl text-slate-800 uppercase flex items-center gap-3">
@@ -172,59 +181,57 @@
                         <canvas id="survivalChart"></canvas>
                     </div>
                 </div>
-
-                <!-- Botones de Medios -->
-                <div class="bg-slate-800 p-8 rounded-2xl shadow-inner text-white">
-                    <h3 class="font-bold text-xl uppercase mb-6 text-center tracking-widest">Canales de Comunicación Externos</h3>
-                    <div class="flex flex-wrap justify-center gap-4">
-                        <a href="#" target="_blank" class="bg-white text-slate-900 px-8 py-3 rounded-lg font-black hover:bg-red-600 hover:text-white transition-all uppercase text-sm">
-                            El Diario Montañés
-                        </a>
-                        <a href="#" target="_blank" class="bg-slate-700 text-white px-8 py-3 rounded-lg font-bold border border-slate-600 hover:bg-red-600 transition-all uppercase text-sm">
-                            Radio Santander (Cadena SER)
-                        </a>
-                        <a href="#" target="_blank" class="bg-slate-700 text-white px-8 py-3 rounded-lg font-bold border border-slate-600 hover:bg-red-600 transition-all uppercase text-sm">
-                            Alertas PC Cantabria
-                        </a>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- SECTION: EL ARCHIVO (Restaurado) -->
+        <!-- SECTION: EL ARCHIVO (RESTAURADO SEGÚN CAPTURA) -->
         <section id="archivo" class="hidden animate-fadeIn">
-            <div class="max-w-5xl mx-auto">
+            <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl font-black text-slate-900 uppercase">El Archivo Central</h2>
-                    <p class="text-slate-500 font-medium">Documentación oficial sobre el origen y desarrollo del Colapso.</p>
+                    <h2 class="text-4xl font-black text-slate-900 uppercase">EL ARCHIVO CENTRAL</h2>
+                    <p class="text-slate-500 font-medium mb-8">Documentación oficial sobre el origen y desarrollo del Colapso.</p>
+                    
+                    <!-- Botón para Dossier Informativo PDF -->
+                    <a href="file:///C:/Users/34664/Documents/PUBLI%20Y%20PERIODISMO/TERCERO/COMUNICACIÓN%20NEW%20MEDIA/SANTANDER%20COLAPSA/Dossier%20Informativo.pdf" 
+                       target="_blank"
+                       class="inline-flex items-center gap-3 bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl mb-12">
+                        <span>📄</span> Abrir Dossier Informativo (PDF)
+                    </a>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-2xl border-l-8 border-red-600 shadow-lg hover:shadow-xl transition-all cursor-pointer">
-                        <span class="mono text-red-600 font-bold text-xs uppercase">Catálogo 01</span>
-                        <h3 class="text-2xl font-bold mt-2 text-slate-800">Cronología del Desastre</h3>
-                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                    <!-- Catálogo 01 -->
+                    <div class="archive-card highlight">
+                        <span class="mono text-red-600 font-bold text-[10px] uppercase tracking-wider">CATÁLOGO 01</span>
+                        <h3 class="text-2xl font-black mt-2 text-slate-800 uppercase tracking-tight">Cronología del Desastre</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed font-medium">
                             Desde el primer apagón en el Puerto Chico hasta la instauración de la Ley Seca Digital. Repase los hitos que cambiaron la ciudad para siempre.
                         </p>
                     </div>
-                    <div class="bg-white p-8 rounded-2xl border-l-8 border-slate-800 shadow-lg hover:shadow-xl transition-all cursor-pointer">
-                        <span class="mono text-slate-500 font-bold text-xs uppercase">Catálogo 02</span>
-                        <h3 class="text-2xl font-bold mt-2 text-slate-800">Protocolos de Vida</h3>
-                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+
+                    <!-- Catálogo 02 -->
+                    <div class="archive-card">
+                        <span class="mono text-slate-400 font-bold text-[10px] uppercase tracking-wider">CATÁLOGO 02</span>
+                        <h3 class="text-2xl font-black mt-2 text-slate-800 uppercase tracking-tight">Protocolos de Vida</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed font-medium">
                             Instrucciones verificadas: Cómo purificar agua salobre, señales de radio permitidas y qué hacer en caso de avistamiento de "Sombras".
                         </p>
                     </div>
-                    <div class="bg-white p-8 rounded-2xl border-l-8 border-slate-800 shadow-lg hover:shadow-xl transition-all cursor-pointer">
-                        <span class="mono text-slate-500 font-bold text-xs uppercase">Catálogo 03</span>
-                        <h3 class="text-2xl font-bold mt-2 text-slate-800">Personajes Clave</h3>
-                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+
+                    <!-- Catálogo 03 -->
+                    <div class="archive-card">
+                        <span class="mono text-slate-400 font-bold text-[10px] uppercase tracking-wider">CATÁLOGO 03</span>
+                        <h3 class="text-2xl font-black mt-2 text-slate-800 uppercase tracking-tight">Personajes Clave</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed font-medium">
                             Perfiles de los líderes del consejo de emergencia y los misteriosos operadores de 'Radio Niebla'.
                         </p>
                     </div>
-                    <div class="bg-white p-8 rounded-2xl border-l-8 border-slate-800 shadow-lg hover:shadow-xl transition-all cursor-pointer">
-                        <span class="mono text-slate-500 font-bold text-xs uppercase">Catálogo 04</span>
-                        <h3 class="text-2xl font-bold mt-2 text-slate-800">Ubicaciones Comprometidas</h3>
-                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+
+                    <!-- Catálogo 04 -->
+                    <div class="archive-card">
+                        <span class="mono text-slate-400 font-bold text-[10px] uppercase tracking-wider">CATÁLOGO 04</span>
+                        <h3 class="text-2xl font-black mt-2 text-slate-800 uppercase tracking-tight">Ubicaciones Comprometidas</h3>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed font-medium">
                             Zonas rojas inaccesibles por saturación de CO2 o fenómenos climáticos extremos.
                         </p>
                     </div>
@@ -232,106 +239,51 @@
             </div>
         </section>
 
-        <!-- SECTION: MAPA TÁCTICO -->
+        <!-- SECTION: MAPA INTERACTIVO -->
         <section id="mapa" class="hidden animate-fadeIn">
             <div class="flex flex-col gap-8">
                 <div class="mb-2">
                     <h2 class="text-4xl font-black text-slate-900">CARTOGRAFÍA DE CRISIS</h2>
-                    <p class="text-slate-500 font-medium">Mapa operativo de Santander. Localice su cuadrante y verifique el estado del suelo.</p>
+                    <p class="text-slate-500 font-medium italic">Ubicación de archivos en: C:\Users\34664\Documents\...\assets</p>
                 </div>
-
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <div class="flex-1">
-                        <div id="map-container">
-                            <div class="map-overlay-grid">
-                                <div class="map-marker marker-danger" style="top: 30%; left: 65%;" onclick="showLocation('Puerto Chico')"></div>
-                                <div class="map-marker marker-danger" style="top: 25%; left: 80%;" onclick="showLocation('El Sardinero')"></div>
-                                <div class="map-marker marker-safe" style="top: 45%; left: 45%;" onclick="showLocation('Ayuntamiento')"></div>
-                                <div class="map-marker marker-safe" style="top: 60%; left: 20%;" onclick="showLocation('Refugio Alisal')"></div>
-                                <div class="map-marker marker-danger" style="top: 50%; left: 55%;" onclick="showLocation('Catedral')"></div>
-                            </div>
-                        </div>
+                <div id="map-container">
+                    <div class="map-overlay-grid">
+                        <div class="map-marker marker-danger" style="top: 30%; left: 65%;" onclick="showLocation('Puerto Chico')"></div>
+                        <div class="map-marker marker-danger" style="top: 25%; left: 80%;" onclick="showLocation('El Sardinero')"></div>
+                        <div class="map-marker marker-safe" style="top: 45%; left: 45%;" onclick="showLocation('Ayuntamiento')"></div>
+                        <div class="map-marker marker-safe" style="top: 60%; left: 20%;" onclick="showLocation('Refugio Alisal')"></div>
                     </div>
-                    
-                    <div class="w-full lg:w-96 bg-white rounded-xl border-2 border-slate-800 p-6 shadow-2xl">
-                        <div id="map-info-empty" class="text-center py-12">
-                            <p class="mono text-sm text-slate-400 italic">Pulse sobre los marcadores <br>(<span class="text-red-500">● Peligro</span> / <span class="text-green-500">● Seguro</span>) <br>para ver el reporte físico.</p>
-                        </div>
-                        <div id="map-info-content" class="hidden space-y-6">
-                            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-                                <h4 id="loc-name" class="text-xl font-black text-red-600 uppercase">Ubicación</h4>
-                                <p id="loc-status" class="text-xs font-bold mono text-slate-500">REPORTE DE ESTADO</p>
-                            </div>
-                            <div id="loc-details" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded border">
-                                Seleccione un punto para leer el informe detallado del área.
-                            </div>
-                            <button class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition-all">
-                                SOLICITAR EVACUACIÓN
-                            </button>
-                        </div>
-                    </div>
+                </div>
+                <div id="map-info-content" class="hidden bg-white p-6 rounded-xl border-2 border-slate-800 shadow-xl max-w-2xl mx-auto w-full">
+                    <h4 id="loc-name" class="text-2xl font-black text-red-600 uppercase">Ubicación</h4>
+                    <p id="loc-details" class="text-slate-600 mt-2 font-medium"></p>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: RED CÍVICA / REPORTAR (Restaurado) -->
+        <!-- SECTION: RED CÍVICA -->
         <section id="red" class="hidden animate-fadeIn">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-                    <h2 class="text-3xl font-black text-slate-900 mb-2 uppercase">Línea de Reporte</h2>
+                    <h2 class="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tighter">Línea de Reporte</h2>
                     <p class="text-slate-500 mb-8 font-medium">Ayude a reconstruir la historia. Suba su evidencia ciudadana (No-Canon).</p>
-                    
-                    <form class="space-y-6" onsubmit="event.preventDefault(); alert('Reporte transmitido al Nodo Central.');">
+                    <form class="space-y-6" onsubmit="event.preventDefault(); alert('Transmitido.');">
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Alias del Informante</label>
-                                <input type="text" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-red-600 outline-none" placeholder="Superviviente_84">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Categoría</label>
-                                <select class="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none">
-                                    <option>Foto de Avistamiento</option>
-                                    <option>Relato Escrito</option>
-                                    <option>Kit de Supervivencia</option>
-                                </select>
-                            </div>
+                            <input type="text" class="bg-slate-50 border p-3 rounded-lg outline-none font-bold text-slate-700" placeholder="Alias Informante">
+                            <select class="bg-slate-50 border p-3 rounded-lg outline-none font-bold text-slate-700">
+                                <option>Foto de Avistamiento</option>
+                                <option>Relato</option>
+                            </select>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Evidencia Detallada</label>
-                            <textarea class="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg h-32 outline-none" placeholder="Describa lo que ha visto u oído..."></textarea>
-                        </div>
-                        <div class="border-2 border-dashed border-slate-200 p-6 text-center rounded-xl hover:bg-red-50 transition-colors cursor-pointer">
-                            <span class="text-slate-400 font-bold text-sm">Arrastre sus fotos o archivos aquí</span>
-                        </div>
-                        <button class="w-full bg-red-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-slate-900 transition-all uppercase tracking-widest">
-                            Transmitir Reporte
-                        </button>
+                        <textarea class="w-full bg-slate-50 border p-3 rounded-lg h-32 outline-none" placeholder="Evidencia detallada..."></textarea>
+                        <button class="w-full bg-red-600 text-white font-black py-4 rounded-xl uppercase tracking-widest shadow-lg hover:bg-slate-900 transition-all">Transmitir Reporte</button>
                     </form>
                 </div>
-
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900 mb-6 uppercase">Muro de Evidencias</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <h2 class="text-3xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Muro de Evidencias</h2>
+                    <div class="space-y-4">
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-[9px] font-black uppercase text-red-600 bg-red-50 px-2 py-1 rounded">Kit</span>
-                                <span class="mono text-[9px] text-slate-400">@User_91</span>
-                            </div>
-                            <p class="text-sm text-slate-600 italic">"Encontré esta radio en el ático de mi abuela."</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-[9px] font-black uppercase text-red-600 bg-red-50 px-2 py-1 rounded">Relato</span>
-                                <span class="mono text-[9px] text-slate-400">@Sander77</span>
-                            </div>
-                            <p class="text-sm text-slate-600 italic">"La niebla huele a metal quemado."</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-[9px] font-black uppercase text-red-600 bg-red-50 px-2 py-1 rounded">Kit</span>
-                                <span class="mono text-[9px] text-slate-400">@Marta_Col</span>
-                            </div>
-                            <p class="text-sm text-slate-600 italic">"Foto de mi mochila de emergencia lista."</p>
+                            <p class="text-sm text-slate-600 italic">"La niebla huele a metal quemado." - @Sander77</p>
                         </div>
                     </div>
                 </div>
@@ -340,14 +292,23 @@
 
     </main>
 
+    <!-- Footer con Instagram -->
     <footer class="bg-slate-900 text-white p-12 mt-12">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 items-center text-center md:text-left">
             <div>
-                <h4 class="font-black text-xl mb-4 uppercase">SANTANDER COLAPSA</h4>
-                <p class="text-slate-400 text-sm italic">Proyecto Transmedia Inmersivo. Nodo de Resistencia Digital.</p>
+                <h4 class="font-black text-xl mb-2 uppercase tracking-tighter text-red-600">SANTANDER COLAPSA</h4>
+                <p class="text-slate-400 text-sm italic">Nodo de Resistencia Digital 2026.</p>
             </div>
-            <div class="border-t border-slate-800 mt-12 pt-8 text-center text-xs text-slate-500 mono col-span-full">
-                © 2026 COMITÉ DE RESISTENCIA SANTANDER - TODOS LOS DERECHOS RESERVADOS
+            <div class="flex justify-center">
+                <a href="https://www.instagram.com/santandercolapsa?igsh=MWg5d2NxaTdpczV2ZA==" 
+                   target="_blank" 
+                   class="flex items-center gap-3 bg-white/10 hover:bg-red-600 px-6 py-3 rounded-full transition-all group">
+                    <svg class="w-6 h-6 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.919-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    <span class="font-bold text-sm tracking-widest uppercase">Instagram</span>
+                </a>
+            </div>
+            <div class="text-right text-xs text-slate-500 mono hidden md:block">
+                © 2026 COMITÉ DE RESISTENCIA <br> SANTANDER
             </div>
         </div>
     </footer>
@@ -357,11 +318,10 @@
         let survivalChartInstance = null;
 
         const locationDetails = {
-            'Puerto Chico': 'Elevada concentración de niebla. Visibilidad menor a 2 metros. No acercarse al borde costero.',
-            'El Sardinero': 'Playa cristalizada. Estructuras de los hoteles comprometidas por la salitre.',
-            'Ayuntamiento': 'Centro Logístico Activo. Suministro de agua potable disponible para ciudadanos registrados.',
-            'Refugio Alisal': 'Zona segura. Capacidad al 85%. Disponibilidad de kits médicos básicos.',
-            'Catedral': 'Anomalía sonora detectada. Se recomienda evitar el tránsito nocturno por los alrededores.'
+            'Puerto Chico': 'Elevada concentración de niebla. Visibilidad menor a 2 metros.',
+            'El Sardinero': 'Playa cristalizada. Estructuras costeras comprometidas.',
+            'Ayuntamiento': 'Centro Logístico Activo. Suministro disponible.',
+            'Refugio Alisal': 'Zona segura. Capacidad al 85%.'
         };
 
         function navigate(sectionId) {
@@ -370,77 +330,54 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'text-red-600'));
             const activeBtn = document.getElementById('btn-' + sectionId);
             if(activeBtn) activeBtn.classList.add('active', 'text-red-600');
-            
-            if(sectionId === 'dashboard') {
-                setTimeout(initCharts, 50);
-            }
+            if(sectionId === 'dashboard') setTimeout(initCharts, 50);
         }
 
         function showLocation(name) {
-            document.getElementById('map-info-empty').classList.add('hidden');
             document.getElementById('map-info-content').classList.remove('hidden');
             document.getElementById('loc-name').textContent = name;
-            document.getElementById('loc-details').textContent = locationDetails[name] || 'Sin datos adicionales.';
+            document.getElementById('loc-details').textContent = locationDetails[name];
         }
 
         function initCharts() {
             if (energyChartInstance) energyChartInstance.destroy();
             if (survivalChartInstance) survivalChartInstance.destroy();
 
-            const energyCanvas = document.getElementById('energyChart');
-            const survivalCanvas = document.getElementById('survivalChart');
+            const eCtx = document.getElementById('energyChart');
+            const sCtx = document.getElementById('survivalChart');
 
-            if (energyCanvas) {
-                energyChartInstance = new Chart(energyCanvas, {
+            if (eCtx) {
+                energyChartInstance = new Chart(eCtx, {
                     type: 'line',
                     data: {
                         labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', 'Ahora'],
-                        datasets: [
-                            {
-                                label: 'Suministro Ciudad (MW)',
-                                data: [450, 420, 150, 200, 80, 40, 15],
-                                borderColor: '#D90429',
-                                borderWidth: 4,
-                                fill: true,
-                                backgroundColor: 'rgba(217, 4, 41, 0.05)',
-                                tension: 0.3
-                            },
-                            {
-                                label: 'Demanda Crítica',
-                                data: [300, 300, 300, 300, 300, 300, 300],
-                                borderColor: '#2B2D42',
-                                borderDash: [5, 5],
-                                borderWidth: 2,
-                                fill: false
-                            }
-                        ]
+                        datasets: [{
+                            label: 'Suministro (MW)',
+                            data: [450, 420, 150, 200, 80, 40, 15],
+                            borderColor: '#D90429',
+                            borderWidth: 4,
+                            fill: true,
+                            backgroundColor: 'rgba(217, 4, 41, 0.05)',
+                            tension: 0.3
+                        }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
-            if (survivalCanvas) {
-                survivalChartInstance = new Chart(survivalCanvas, {
+            if (sCtx) {
+                survivalChartInstance = new Chart(sCtx, {
                     type: 'bar',
                     data: {
-                        labels: ['Centro Urbano', 'Cueto/Monte', 'El Alisal', 'Cazoña', 'Sardinero', 'Peñacastillo'],
+                        labels: ['Centro', 'Cueto', 'Alisal', 'Cazoña', 'Sardinero', 'Peñacastillo'],
                         datasets: [{
-                            label: 'Población Localizada',
+                            label: 'Censo',
                             data: [12400, 4500, 8900, 6200, 850, 11000],
-                            backgroundColor: (ctx) => ctx.raw < 1000 ? '#D90429' : '#2B2D42',
+                            backgroundColor: '#2B2D42',
                             borderRadius: 8
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        plugins: { legend: { display: false } }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
                 });
             }
         }
